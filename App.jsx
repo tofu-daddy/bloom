@@ -448,7 +448,6 @@ export default function App() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transform: translateX(-50%);
         }
         .plant-button:hover {
           box-shadow: 0 4px 24px rgba(0,0,0,0.08);
@@ -612,10 +611,15 @@ export default function App() {
             <div
                 style={{
                     position: "fixed",
-                    bottom: "clamp(24px, 5vh, 48px)",
+                    bottom: "clamp(20px, 4vh, 40px)",
                     left: "50%",
+                    transform: "translateX(-50%)",
                     zIndex: 50,
                     animation: "fadeIn 1.2s ease-out 1s both",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px"
                 }}
             >
                 <button
@@ -624,6 +628,26 @@ export default function App() {
                 >
                     Draw a Flower
                 </button>
+                <a
+                    href="https://buymeacoffee.com/tofudaddy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        color: "#b0a99a",
+                        fontSize: "11px",
+                        textDecoration: "none",
+                        fontFamily: "'DM Sans', sans-serif",
+                        opacity: 0.7,
+                        transition: "opacity 0.2s",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase",
+                        fontWeight: 600
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.opacity = "1"}
+                    onMouseOut={(e) => e.currentTarget.style.opacity = "0.7"}
+                >
+                    Buy Me Coffee
+                </a>
             </div>
 
             {/* Drawing modal */}

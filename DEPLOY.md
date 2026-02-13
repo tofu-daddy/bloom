@@ -25,8 +25,8 @@ git commit -m "Initial commit: Digital Flower Garden"
 # Rename branch to main
 git branch -M main
 
-# Link to your GitHub repo (Replace <YOUR_USERNAME> and <REPO_NAME>)
-git remote add origin https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+# Link to your GitHub repo
+git remote add origin https://github.com/tofu-daddy/bloom.git
 
 # Push to GitHub
 git push -u origin main
@@ -34,8 +34,7 @@ git push -u origin main
 
 ## 3. Configure for Deployment
 1. Open `vite.config.js`.
-2. Change `base: './'` to `base: '/<REPO_NAME>/'`.
-   *Example: If your repo is `bloom`, it should be `base: '/bloom/'`.*
+2. Ensure it says `base: '/bloom/'`.
 
 ## 4. Deploy!
 Run this command in your terminal:
@@ -78,4 +77,4 @@ create policy "Public read" on flowers for select to public using (true);
 create policy "Public insert" on flowers for insert to public with check (true);
 ```
 
-4. Your garden is now live and shared globally! ✿
+4. Your garden is now live at [https://tofu-daddy.github.io/bloom/](https://tofu-daddy.github.io/bloom/)! ✿

@@ -385,8 +385,8 @@ export default function App() {
         const newFlower = {
             id: generateId(),
             data_url: dataUrl,
-            x: 6 + Math.random() * 88,
-            y: 4 + Math.random() * 52,
+            x: 5 + Math.random() * 90,
+            y: 12 + Math.random() * 48,
             size: Math.random(),
             date: new Date().toISOString(),
         };

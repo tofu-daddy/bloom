@@ -22,7 +22,7 @@ function PlantedFlower({ flower, index }) {
                 bottom: `${flower.y}%`,
                 width: size,
                 transform: "translateX(-50%)",
-                animation: `sprout 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${(index * 0.04) % 0.8}s both`,
+                animation: `sprout 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${(index * 0.08 + (flower.x % 1.2)) % 2}s both`,
                 cursor: "default",
                 zIndex: Math.round(100 - flower.y),
             }}

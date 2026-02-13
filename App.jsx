@@ -51,7 +51,7 @@ function PlantedFlower({ flower, index }) {
                 }}
             >
                 <img
-                    src={flower.dataUrl}
+                    src={flower.data_url}
                     alt="A hand-drawn flower"
                     style={{
                         position: "absolute",
@@ -384,7 +384,7 @@ export default function App() {
     const publishFlower = async (dataUrl) => {
         const newFlower = {
             id: generateId(),
-            dataUrl,
+            data_url: dataUrl,
             x: 6 + Math.random() * 88,
             y: 4 + Math.random() * 52,
             size: Math.random(),
@@ -405,8 +405,8 @@ export default function App() {
             setJustPlanted(true);
             setTimeout(() => setJustPlanted(false), 3000);
         } catch (e) {
-            console.error("Supabase insert error:", e.message);
-            alert("Failed to plant flower. Make sure the database table is created!");
+            console.error("Supabase insert error:", e);
+            alert(`Failed to plant flower: ${e.message || "Unknown error"}. Make sure the database table is created with a 'data_url' column!`);
         }
     };
 

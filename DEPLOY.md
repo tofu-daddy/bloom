@@ -60,9 +60,12 @@ To make the garden shared across all devices, you must create the table in Supab
 3. Paste the following SQL and click **Run**:
 
 ```sql
+-- Optional: Clean start if you have errors
+drop table if exists flowers;
+
 create table flowers (
   id text primary key,
-  dataUrl text not null,
+  data_url text not null,
   x float not null,
   y float not null,
   size float not null,

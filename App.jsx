@@ -451,10 +451,10 @@ export default function App() {
         }
         .plant-button:hover {
           box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-          transform: translateX(-50%) translateY(-2px);
+          transform: translateY(-2px);
         }
         .plant-button:active {
-          transform: translateX(-50%) translateY(0);
+          transform: translateY(0);
         }
       `}</style>
 

@@ -337,16 +337,96 @@ function DrawingCanvas({ onPublish, onCancel }) {
     );
 }
 
+function AdminPanel({ flowers, onDelete, onExit }) {
+    return (
+        <div style={{
+            position: "fixed",
+            inset: 0,
+            background: "#FDFCF9",
+            zIndex: 1000,
+            overflowY: "auto",
+            padding: "40px 20px",
+            fontFamily: "'DM Sans', sans-serif"
+        }}>
+            <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
+                    <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: "32px", margin: 0 }}>Garden Management</h2>
+                    <button
+                        onClick={onExit}
+                        style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #D5D0C7", background: "#fff", cursor: "pointer" }}
+                    >
+                        Exit Admin
+                    </button>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "20px" }}>
+                    {flowers.map(flower => (
+                        <div key={flower.id} style={{
+                            background: "#fff",
+                            border: "1px solid #EDEBE6",
+                            borderRadius: "12px",
+                            padding: "15px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "10px"
+                        }}>
+                            <img src={flower.data_url} style={{ width: "100px", height: "100px", borderRadius: "50%", background: "#F7F5F0" }} />
+                            <div style={{ fontSize: "11px", color: "#aaa" }}>{new Date(flower.date).toLocaleDateString()}</div>
+                            <button
+                                onClick={() => onDelete(flower.id)}
+                                style={{
+                                    width: "100%",
+                                    padding: "6px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    background: "#ffebee",
+                                    color: "#d32f2f",
+                                    fontSize: "12px",
+                                    fontWeight: 600,
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                {flowers.length === 0 && <div style={{ textAlign: "center", color: "#aaa", marginTop: "40px" }}>The garden is empty.</div>}
+            </div>
+        </div>
+    );
+}
+
 export default function App() {
     const [flowers, setFlowers] = useState([]);
     const [showDrawing, setShowDrawing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [justPlanted, setJustPlanted] = useState(false);
     const [flowerCount, setFlowerCount] = useState(0);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
         loadFlowers();
+        checkAdminRoute();
+        window.addEventListener('hashchange', checkAdminRoute);
+        return () => window.removeEventListener('hashchange', checkAdminRoute);
     }, []);
+
+    const checkAdminRoute = () => {
+        const isCurrentlyAdmin = window.location.hash === "#admin";
+        setIsAdmin(isCurrentlyAdmin);
+        if (isCurrentlyAdmin && !isAuthenticated) {
+            const pass = prompt("Enter Admin Passcode:");
+            if (pass === "Sh3bulb@1914@") {
+                setIsAuthenticated(true);
+            } else {
+                window.location.hash = "";
+                setIsAdmin(false);
+            }
+        }
+    };
 
     const loadFlowers = async () => {
         try {
@@ -365,6 +445,24 @@ export default function App() {
             console.error("Supabase load error:", e.message);
         }
         setLoading(false);
+    };
+
+    const deleteFlower = async (id) => {
+        if (!confirm("Are you sure you want to remove this flower forever?")) return;
+
+        try {
+            const { error } = await supabase
+                .from('flowers')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            setFlowers(prev => prev.filter(f => f.id !== id));
+            setFlowerCount(prev => prev - 1);
+        } catch (e) {
+            alert(`Failed to delete: ${e.message}`);
+        }
     };
 
     const publishFlower = async (dataUrl) => {
@@ -395,6 +493,18 @@ export default function App() {
             alert(`Failed to plant flower: ${e.message || "Unknown error"}. Make sure the database table is created with a 'data_url' column!`);
         }
     };
+
+    if (isAdmin && isAuthenticated) {
+        return <AdminPanel
+            flowers={flowers}
+            onDelete={deleteFlower}
+            onExit={() => {
+                window.location.hash = "";
+                setIsAdmin(false);
+                setIsAuthenticated(false);
+            }}
+        />;
+    }
 
     return (
         <div

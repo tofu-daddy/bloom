@@ -1,16 +1,15 @@
 import { useState, useEffect, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const STORAGE_KEY = "community-garden-flowers";
+// Supabase Configuration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 const CANVAS_SIZE = 200;
 
-// Fallback for window.storage to support GitHub Pages
-const storage = window.storage || {
-    get: async (key) => ({ value: localStorage.getItem(key) }),
-    set: async (key, value) => { localStorage.setItem(key, value); }
-};
-
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(Date.now().toString().length - 6);
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 }
 
 function PlantedFlower({ flower, index }) {
@@ -365,14 +364,19 @@ export default function App() {
 
     const loadFlowers = async () => {
         try {
-            const result = await storage.get(STORAGE_KEY, true);
-            if (result && result.value) {
-                const data = JSON.parse(result.value);
-                setFlowers(data.flowers || []);
-                setFlowerCount(data.flowers?.length || 0);
+            const { data, error } = await supabase
+                .from('flowers')
+                .select('*')
+                .order('date', { ascending: true });
+
+            if (error) throw error;
+
+            if (data) {
+                setFlowers(data);
+                setFlowerCount(data.length);
             }
         } catch (e) {
-            console.log("No flowers yet:", e);
+            console.error("Supabase load error:", e.message);
         }
         setLoading(false);
     };
@@ -384,26 +388,26 @@ export default function App() {
             x: 6 + Math.random() * 88,
             y: 4 + Math.random() * 52,
             size: Math.random(),
-            date: Date.now(),
+            date: new Date().toISOString(),
         };
 
-        const updated = [...flowers, newFlower].slice(-200);
-
         try {
-            await storage.set(
-                STORAGE_KEY,
-                JSON.stringify({ flowers: updated }),
-                true
-            );
-        } catch (e) {
-            console.error("Storage error:", e);
-        }
+            const { error } = await supabase
+                .from('flowers')
+                .insert([newFlower]);
 
-        setFlowers(updated);
-        setFlowerCount(updated.length);
-        setShowDrawing(false);
-        setJustPlanted(true);
-        setTimeout(() => setJustPlanted(false), 3000);
+            if (error) throw error;
+
+            // Optimistic update
+            setFlowers(prev => [...prev, newFlower]);
+            setFlowerCount(prev => prev + 1);
+            setShowDrawing(false);
+            setJustPlanted(true);
+            setTimeout(() => setJustPlanted(false), 3000);
+        } catch (e) {
+            console.error("Supabase insert error:", e.message);
+            alert("Failed to plant flower. Make sure the database table is created!");
+        }
     };
 
     return (
@@ -443,7 +447,6 @@ export default function App() {
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* Button Hover Fix - using CSS for stability */
         .plant-button {
           padding: 14px 32px;
           border-radius: 100px;

@@ -54,4 +54,28 @@ This will build your project and push it to a special branch called `gh-pages`.
 4. Under **Branch**, select `gh-pages` and folder `/ (root)`.
 5. Click **Save**.
 
-Wait a minute, and your site will be live at `https://<YOUR_USERNAME>.github.io/<REPO_NAME>/`! ✿
+## 6. Database Setup (Supabase)
+To make the garden shared across all devices, you must create the table in Supabase:
+1. In your Supabase Dashboard, click **SQL Editor** (left sidebar).
+2. Click **New Query**.
+3. Paste the following SQL and click **Run**:
+
+```sql
+create table flowers (
+  id text primary key,
+  dataUrl text not null,
+  x float not null,
+  y float not null,
+  size float not null,
+  date timestamp with time zone default now()
+);
+
+-- Enable Row Level Security (RLS)
+alter table flowers enable row level security;
+
+-- Create policy to allow everyone to read/write
+create policy "Public read" on flowers for select to public using (true);
+create policy "Public insert" on flowers for insert to public with check (true);
+```
+
+4. Your garden is now live and shared globally! ✿

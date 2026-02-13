@@ -10,7 +10,7 @@ const storage = window.storage || {
 };
 
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    return Date.now().toString(36) + Math.random().toString(36).slice(Date.now().toString().length - 6);
 }
 
 function PlantedFlower({ flower, index }) {
@@ -408,18 +408,24 @@ export default function App() {
 
     return (
         <div
+            className="garden-container"
             style={{
                 position: "fixed",
                 inset: 0,
                 overflow: "hidden",
                 fontFamily: "'DM Sans', sans-serif",
-                background: "#FDFCF9", // Cotton Cloud Background
+                background: "#FDFCF9",
             }}
         >
             <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+
+        @keyframes fadeInSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideUp {
@@ -437,9 +443,30 @@ export default function App() {
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        @keyframes sway {
-          0%, 100% { transform: translateX(-50%) rotate(0deg); }
-          50% { transform: translateX(-50%) rotate(1.5deg); }
+        /* Button Hover Fix - using CSS for stability */
+        .plant-button {
+          padding: 14px 32px;
+          border-radius: 100px;
+          border: 1px solid #D5D0C7;
+          background: #fff;
+          color: #2a2a2a;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          transform: translateX(-50%);
+        }
+        .plant-button:hover {
+          box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+          transform: translateX(-50%) translateY(-2px);
+        }
+        .plant-button:active {
+          transform: translateX(-50%) translateY(0);
         }
       `}</style>
 
@@ -456,20 +483,7 @@ export default function App() {
                 }}
             />
 
-            {/* Subtle ground line */}
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: "60%",
-                    left: 0,
-                    right: 0,
-                    height: 1,
-                    background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.03), transparent)",
-                    zIndex: 0,
-                }}
-            />
-
-            {/* Header — Center Aligned */}
+            {/* Header — Staggered Entry Animation */}
             <div
                 style={{
                     position: "fixed",
@@ -477,40 +491,73 @@ export default function App() {
                     left: 0,
                     right: 0,
                     zIndex: 50,
-                    padding: "clamp(20px, 6vh, 60px) 20px",
+                    padding: "clamp(32px, 8vh, 80px) 20px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     textAlign: "center",
-                    animation: "fadeIn 0.8s ease-out",
                 }}
             >
+                <div
+                    style={{
+                        fontSize: 11,
+                        letterSpacing: "0.25em",
+                        textTransform: "uppercase",
+                        color: "#b0a99a",
+                        fontWeight: 600,
+                        marginBottom: 12,
+                        animation: "fadeInSlideUp 0.8s ease-out 0.1s both",
+                    }}
+                >
+                    A Community Garden
+                </div>
+
                 <h1
                     style={{
                         fontFamily: "'Instrument Serif', serif",
-                        fontSize: "clamp(32px, 6vw, 56px)",
+                        fontSize: "clamp(40px, 7vw, 64px)",
                         fontWeight: 400,
                         color: "#2a2a2a",
                         margin: 0,
-                        lineHeight: 1.1,
+                        lineHeight: 1,
+                        animation: "fadeInSlideUp 0.8s ease-out 0.3s both",
                     }}
                 >
                     Leave a Flower
                 </h1>
-                <p
+
+                <div
                     style={{
+                        width: 40,
+                        height: 1,
+                        background: "#D5D0C7",
+                        marginTop: 20,
+                        marginBottom: 16,
+                        animation: "fadeIn 1s ease-out 0.6s both",
+                    }}
+                />
+
+                <div
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
                         color: "#b0a99a",
                         fontSize: 14,
-                        margin: "8px 0 0",
                         fontWeight: 400,
-                        letterSpacing: "0.01em",
+                        letterSpacing: "0.02em",
                         fontFamily: "'DM Sans', sans-serif",
+                        animation: "fadeInSlideUp 0.8s ease-out 0.8s both",
                     }}
                 >
-                    {loading
-                        ? "opening the garden..."
-                        : `${flowerCount} flower${flowerCount !== 1 ? "s" : ""} planted`}
-                </p>
+                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
+                    <span>
+                        {loading
+                            ? "opening the garden..."
+                            : `${flowerCount} flower${flowerCount !== 1 ? "s" : ""} planted`}
+                    </span>
+                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
+                </div>
             </div>
 
             {/* Flowers */}
@@ -547,39 +594,15 @@ export default function App() {
             <div
                 style={{
                     position: "fixed",
-                    bottom: "clamp(20px, 4vh, 40px)",
+                    bottom: "clamp(24px, 5vh, 48px)",
                     left: "50%",
-                    transform: "translateX(-50%)",
                     zIndex: 50,
-                    animation: "fadeIn 1s ease-out 0.3s both",
+                    animation: "fadeIn 1.2s ease-out 1s both",
                 }}
             >
                 <button
+                    className="plant-button"
                     onClick={() => setShowDrawing(true)}
-                    style={{
-                        padding: "14px 32px",
-                        borderRadius: 100,
-                        border: "1px solid #D5D0C7",
-                        background: "#fff",
-                        color: "#2a2a2a",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 14,
-                        fontWeight: 500,
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 7,
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)";
-                        e.currentTarget.style.transform = "translateY(-1px) translateX(-50%)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.05)";
-                        e.currentTarget.style.transform = "translateY(0) translateX(-50%)";
-                    }}
                 >
                     <span style={{ fontSize: 15, lineHeight: 1 }}>✿</span>
                     Draw a Flower

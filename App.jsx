@@ -448,7 +448,7 @@ export default function App() {
         }
 
         .plant-button {
-          padding: 14px 32px;
+          padding: 14px 40px;
           border-radius: 100px;
           border: 1px solid #D5D0C7;
           background: #fff;
@@ -461,7 +461,7 @@ export default function App() {
           box-shadow: 0 2px 12px rgba(0,0,0,0.05);
           display: flex;
           align-items: center;
-          gap: 7px;
+          justify-content: center;
           transform: translateX(-50%);
         }
         .plant-button:hover {
@@ -486,7 +486,67 @@ export default function App() {
                 }}
             />
 
-            {/* Header — Staggered Entry Animation */}
+            {/* Top Navigation Bar */}
+            <div
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 60,
+                    padding: "32px 40px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    pointerEvents: "none",
+                }}
+            >
+                {/* Logo */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        animation: "fadeIn 0.8s ease-out both",
+                        pointerEvents: "auto",
+                    }}
+                >
+                    <span style={{ fontSize: 14, color: "#2a2a2a" }}>✿</span>
+                    <span style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        color: "#2a2a2a",
+                        fontFamily: "'DM Sans', sans-serif"
+                    }}>BLOOM</span>
+                </div>
+
+                {/* Flower Count */}
+                <div
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        color: "#b0a99a",
+                        fontSize: 13,
+                        fontWeight: 400,
+                        letterSpacing: "0.02em",
+                        fontFamily: "'DM Sans', sans-serif",
+                        animation: "fadeIn 0.8s ease-out 0.4s both",
+                        pointerEvents: "auto",
+                    }}
+                >
+                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
+                    <span>
+                        {loading
+                            ? "opening..."
+                            : `${flowerCount} flower${flowerCount !== 1 ? "s" : ""} planted`}
+                    </span>
+                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
+                </div>
+            </div>
+
+            {/* Main Header Container (Centered) */}
             <div
                 style={{
                     position: "fixed",
@@ -494,11 +554,12 @@ export default function App() {
                     left: 0,
                     right: 0,
                     zIndex: 50,
-                    padding: "clamp(32px, 8vh, 80px) 20px",
+                    padding: "clamp(48px, 12vh, 120px) 20px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     textAlign: "center",
+                    pointerEvents: "none",
                 }}
             >
                 <div
@@ -508,7 +569,7 @@ export default function App() {
                         textTransform: "uppercase",
                         color: "#b0a99a",
                         fontWeight: 600,
-                        marginBottom: 12,
+                        marginBottom: 16,
                         animation: "fadeInSlideUp 0.8s ease-out 0.1s both",
                     }}
                 >
@@ -518,49 +579,17 @@ export default function App() {
                 <h1
                     style={{
                         fontFamily: "'Instrument Serif', serif",
-                        fontSize: "clamp(40px, 7vw, 64px)",
+                        fontSize: "clamp(44px, 8vw, 72px)",
                         fontWeight: 400,
                         color: "#2a2a2a",
                         margin: 0,
-                        lineHeight: 1,
+                        lineHeight: 1.1,
                         animation: "fadeInSlideUp 0.8s ease-out 0.3s both",
+                        pointerEvents: "auto",
                     }}
                 >
                     Leave a Flower
                 </h1>
-
-                <div
-                    style={{
-                        width: 40,
-                        height: 1,
-                        background: "#D5D0C7",
-                        marginTop: 20,
-                        marginBottom: 16,
-                        animation: "fadeIn 1s ease-out 0.6s both",
-                    }}
-                />
-
-                <div
-                    style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        color: "#b0a99a",
-                        fontSize: 14,
-                        fontWeight: 400,
-                        letterSpacing: "0.02em",
-                        fontFamily: "'DM Sans', sans-serif",
-                        animation: "fadeInSlideUp 0.8s ease-out 0.8s both",
-                    }}
-                >
-                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
-                    <span>
-                        {loading
-                            ? "opening the garden..."
-                            : `${flowerCount} flower${flowerCount !== 1 ? "s" : ""} planted`}
-                    </span>
-                    <span style={{ fontSize: 10, color: "#D5D0C7" }}>✿</span>
-                </div>
             </div>
 
             {/* Flowers */}
@@ -607,7 +636,6 @@ export default function App() {
                     className="plant-button"
                     onClick={() => setShowDrawing(true)}
                 >
-                    <span style={{ fontSize: 15, lineHeight: 1 }}>✿</span>
                     Draw a Flower
                 </button>
             </div>

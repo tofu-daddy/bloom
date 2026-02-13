@@ -28,20 +28,6 @@ function PlantedFlower({ flower, index }) {
             }}
             title={flower.date ? `Planted ${new Date(flower.date).toLocaleDateString()}` : "A flower"}
         >
-            {/* Stem */}
-            <div
-                style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: 2,
-                    height: size * 0.45,
-                    background: "linear-gradient(to top, #5a7a4a, #7a9a6a)",
-                    borderRadius: 1,
-                    opacity: 0.7,
-                }}
-            />
             {/* Flower drawing */}
             <div
                 style={{
@@ -386,7 +372,7 @@ export default function App() {
             id: generateId(),
             data_url: dataUrl,
             x: 5 + Math.random() * 90,
-            y: 12 + Math.random() * 48,
+            y: 20 + Math.random() * 40,
             size: Math.random(),
             date: new Date().toISOString(),
         };

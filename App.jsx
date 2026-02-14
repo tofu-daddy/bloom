@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- GARDEN CONTROL ---
 // Set to true to stop new flowers from being planted
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 // ----------------------
 
 const CANVAS_SIZE = 200;

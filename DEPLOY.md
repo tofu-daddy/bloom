@@ -75,9 +75,10 @@ create table flowers (
 -- Enable Row Level Security (RLS)
 alter table flowers enable row level security;
 
--- Create policy to allow everyone to read/write
+-- Create policies to allow everyone to read/write/delete
 create policy "Public read" on flowers for select to public using (true);
 create policy "Public insert" on flowers for insert to public with check (true);
+create policy "Public delete" on flowers for delete to public using (true);
 ```
 
 4. Your garden is now live at [https://tofu-daddy.github.io/bloom/](https://tofu-daddy.github.io/bloom/)! ✿

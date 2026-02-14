@@ -64,6 +64,7 @@ function DrawingCanvas({ onPublish, onCancel }) {
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasDrawn, setHasDrawn] = useState(false);
     const [selectedColor, setSelectedColor] = useState("#E8677D");
+    const [hp, setHp] = useState(""); // Honeypot field
     const [brushSize, setBrushSize] = useState(4);
     const lastPos = useRef(null);
 
@@ -141,7 +142,7 @@ function DrawingCanvas({ onPublish, onCancel }) {
 
     const handlePublish = () => {
         const dataUrl = canvasRef.current.toDataURL("image/png");
-        onPublish(dataUrl);
+        onPublish(dataUrl, hp);
     };
 
     return (
@@ -208,6 +209,16 @@ function DrawingCanvas({ onPublish, onCancel }) {
                         marginBottom: 14,
                     }}
                 >
+                    {/* Honeypot field - bots see this, humans don't */}
+                    <input
+                        type="text"
+                        value={hp}
+                        onChange={(e) => setHp(e.target.value)}
+                        style={{ display: "none" }}
+                        tabIndex="-1"
+                        autoComplete="off"
+                    />
+
                     <canvas
                         ref={canvasRef}
                         width={CANVAS_SIZE}
@@ -470,7 +481,23 @@ export default function App() {
         }
     };
 
-    const publishFlower = async (dataUrl) => {
+    const publishFlower = async (dataUrl, honeypot = "") => {
+        // 1. Honeypot check
+        if (honeypot !== "") {
+            console.log("Vibe check failed: Bot detected via honeypot.");
+            setShowDrawing(false);
+            return;
+        }
+
+        // 2. Cooldown check (30 seconds)
+        const lastPlanted = localStorage.getItem("bloom_last_planted");
+        const now = Date.now();
+        if (lastPlanted && now - parseInt(lastPlanted) < 30000) {
+            const remaining = Math.ceil((30000 - (now - parseInt(lastPlanted))) / 1000);
+            alert(`The garden is resting. Please wait ${remaining} seconds before planting again! ✿`);
+            return;
+        }
+
         const newFlower = {
             id: generateId(),
             data_url: dataUrl,
@@ -486,6 +513,9 @@ export default function App() {
                 .insert([newFlower]);
 
             if (error) throw error;
+
+            // Update cooldown
+            localStorage.setItem("bloom_last_planted", Date.now().toString());
 
             // Optimistic update
             setFlowers(prev => [...prev, newFlower]);

@@ -60,9 +60,7 @@ To make the garden shared across all devices, you must create the table in Supab
 3. Paste the following SQL and click **Run**:
 
 ```sql
--- Optional: Clean start if you have errors
-drop table if exists flowers;
-
+-- Step 1: Create the table
 create table flowers (
   id text primary key,
   data_url text not null,
@@ -72,10 +70,10 @@ create table flowers (
   date timestamp with time zone default now()
 );
 
--- Enable Row Level Security (RLS)
+-- Step 2: Enable Row Level Security (RLS)
 alter table flowers enable row level security;
 
--- Create policies to allow everyone to read/write/delete
+-- Step 3: Create Sharing Policies
 create policy "Public read" on flowers for select to public using (true);
 create policy "Public insert" on flowers for insert to public with check (true);
 create policy "Public delete" on flowers for delete to public using (true);

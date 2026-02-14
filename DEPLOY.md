@@ -60,8 +60,11 @@ To make the garden shared across all devices, you must create the table in Supab
 3. Paste the following SQL and click **Run**:
 
 ```sql
--- Step 1: Create the table
-create table flowers (
+-- Step 1: Clean start (Optional: only if you want to wipe everything)
+-- drop table if exists flowers;
+
+-- Step 2: Create/Verify the table
+create table if not exists flowers (
   id text primary key,
   data_url text not null,
   x float not null,
@@ -70,13 +73,21 @@ create table flowers (
   date timestamp with time zone default now()
 );
 
--- Step 2: Enable Row Level Security (RLS)
+-- Step 3: Enable Security
 alter table flowers enable row level security;
 
--- Step 3: Create Sharing Policies
-create policy "Public read" on flowers for select to public using (true);
-create policy "Public insert" on flowers for insert to public with check (true);
-create policy "Public delete" on flowers for delete to public using (true);
+-- Step 4: Drop old policies to avoid conflicts
+drop policy if exists "Public read" on flowers;
+drop policy if exists "Public insert" on flowers;
+drop policy if exists "Public delete" on flowers;
+drop policy if exists "Allow public read" on flowers;
+drop policy if exists "Allow public insert" on flowers;
+drop policy if exists "Allow public delete" on flowers;
+
+-- Step 5: Create robust policies for anonymous visitors
+create policy "Allow public read" on flowers for select to anon using (true);
+create policy "Allow public insert" on flowers for insert to anon with check (true);
+create policy "Allow public delete" on flowers for delete to anon using (true);
 ```
 
 4. Your garden is now live at [https://tofu-daddy.github.io/bloom/](https://tofu-daddy.github.io/bloom/)! ✿

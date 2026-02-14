@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Supabase Configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Gemini Configuration
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
 // --- GARDEN CONTROL ---
 // Set to true to stop new flowers from being planted
@@ -59,7 +64,7 @@ function PlantedFlower({ flower, index }) {
     );
 }
 
-function DrawingCanvas({ onPublish, onCancel }) {
+function DrawingCanvas({ onPublish, onCancel, verifying }) {
     const canvasRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasDrawn, setHasDrawn] = useState(false);
@@ -141,6 +146,20 @@ function DrawingCanvas({ onPublish, onCancel }) {
     };
 
     const handlePublish = () => {
+        // Simple "ink" check - ensure the user actually drew something
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        const imageData = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        let filledPixels = 0;
+        for (let i = 3; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] > 10) filledPixels++;
+        }
+
+        if (filledPixels < 50) {
+            alert("The garden spirits want to see a bit more of your drawing! ✿");
+            return;
+        }
+
         const dataUrl = canvasRef.current.toDataURL("image/png");
         onPublish(dataUrl, hp);
     };
@@ -223,14 +242,6 @@ function DrawingCanvas({ onPublish, onCancel }) {
                         ref={canvasRef}
                         width={CANVAS_SIZE}
                         height={CANVAS_SIZE}
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            cursor: "crosshair",
-                            touchAction: "none",
-                        }}
                         onMouseDown={startDraw}
                         onMouseMove={draw}
                         onMouseUp={stopDraw}
@@ -238,7 +249,45 @@ function DrawingCanvas({ onPublish, onCancel }) {
                         onTouchStart={startDraw}
                         onTouchMove={draw}
                         onTouchEnd={stopDraw}
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            display: "block",
+                            width: "100%",
+                            height: "100%",
+                            cursor: "crosshair",
+                            touchAction: "none",
+                            filter: verifying ? "blur(4px)" : "none",
+                            transition: "filter 0.3s ease",
+                        }}
                     />
+
+                    {verifying && (
+                        <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "rgba(253, 252, 249, 0.7)",
+                            backdropFilter: "blur(2px)",
+                            zIndex: 10,
+                            animation: "fadeIn 0.3s ease-out"
+                        }}>
+                            <div className="blooming-animation" style={{ width: 40, height: 40, marginBottom: 12 }}>✿</div>
+                            <div style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 13,
+                                color: "#888",
+                                fontStyle: "italic",
+                                textAlign: "center",
+                                padding: "0 20px"
+                            }}>
+                                Waiting for garden spirits...
+                            </div>
+                        </div>
+                    )}
                     {!hasDrawn && (
                         <div
                             style={{
@@ -422,6 +471,7 @@ export default function App() {
     const [flowerCount, setFlowerCount] = useState(0);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [verifying, setVerifying] = useState(false);
 
     useEffect(() => {
         loadFlowers();
@@ -496,6 +546,34 @@ export default function App() {
             const remaining = Math.ceil((30000 - (now - parseInt(lastPlanted))) / 1000);
             alert(`The garden is resting. Please wait ${remaining} seconds before planting again! ✿`);
             return;
+        }
+
+        // 3. AI Moderation (If key is available)
+        if (genAI) {
+            setVerifying(true);
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const base64Data = dataUrl.split(",")[1];
+
+                const prompt = "Analyze this user-drawn image. Is this a drawing of a flower or a plant? Respond with only one word: YES or NO. If it is scribble, spam, text, or inappropriate, respond with NO.";
+
+                const result = await model.generateContent([
+                    prompt,
+                    { inlineData: { data: base64Data, mimeType: "image/png" } }
+                ]);
+
+                const response = result.response.text().toUpperCase().trim();
+
+                if (!response.includes("YES")) {
+                    alert("The garden spirits think this isn't quite a flower. Try drawing something more 'bloom-like'! ✿");
+                    setVerifying(false);
+                    return;
+                }
+            } catch (err) {
+                console.error("AI Moderation Error:", err);
+                // Fallback: If AI fails (quota/etc), we let it through but log it
+            }
+            setVerifying(false);
         }
 
         const newFlower = {
@@ -814,6 +892,7 @@ export default function App() {
                 <DrawingCanvas
                     onPublish={publishFlower}
                     onCancel={() => setShowDrawing(false)}
+                    verifying={verifying}
                 />
             )}
         </div>

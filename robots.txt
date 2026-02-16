@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /#admin
+
+Sitemap: https://tofu-daddy.github.io/bloom/sitemap.xml
